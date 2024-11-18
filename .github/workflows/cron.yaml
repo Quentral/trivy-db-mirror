@@ -8,16 +8,27 @@ on:
 jobs:
   copy-trivy-db:
     runs-on: ubuntu-latest
+
     permissions:
       packages: write
+
+    env:
+      REGISTRY: ghcr.io
+
     steps:
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Repsitory name must be lowercase
+      - name: lowercase GITHUB_REPOSITORY_OWNER
+        run: |
+          echo "GHCR_ORG=${GITHUB_REPOSITORY_OWNER@L}" >> ${GITHUB_ENV}
+
       - name: Copy the databases
         run: |
-          oras cp ghcr.io/aquasecurity/trivy-db:2 ghcr.io/${{ github.repository_owner }}/trivy-db-mirror:2
-          oras cp ghcr.io/aquasecurity/trivy-java-db:1 ghcr.io/${{ github.repository_owner }}/trivy-java-db-mirror:1
+          oras cp ${{ env.REGISTRY }}/aquasecurity/trivy-db:2 ${{ env.REGISTRY }}/${{ env.GHCR_ORG }}/trivy-db-mirror:2
+          oras cp ${{ env.REGISTRY }}/aquasecurity/trivy-java-db:1 ${{ env.REGISTRY }}/${{ env.GHCR_ORG }}/trivy-java-db-mirror:1
