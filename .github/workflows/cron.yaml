@@ -28,6 +28,12 @@ jobs:
         run: |
           echo "GHCR_ORG=${GITHUB_REPOSITORY_OWNER@L}" >> ${GITHUB_ENV}
 
+      - name: Install ORAS
+        uses: oras-project/setup-oras@v1
+
+      - name: Ensure ORAS is installed
+        run: oras version
+      
       - name: Copy the databases
         run: |
           oras cp ${{ env.REGISTRY }}/aquasecurity/trivy-db:2 ${{ env.REGISTRY }}/${{ env.GHCR_ORG }}/trivy-db-mirror:2
